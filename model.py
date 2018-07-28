@@ -71,6 +71,7 @@ if __name__ == "__main__":
         zoom_range=0.05,
         rotation_range=5,
         horizontal_flip=True,
+        vertical_flip=True,
         )
     train_generator=train_datagen.flow_from_directory(
         train_dir,
@@ -79,7 +80,6 @@ if __name__ == "__main__":
         class_mode='categorical',
         shuffle=True
         )
-
 
     n_categories=len(train_generator.class_indices)
     #サンプルの多いクラスに予測が集中しないように、少ないサンプルのクラスほど重くなるように重みづけ
@@ -102,18 +102,18 @@ if __name__ == "__main__":
 
     model = vgg_based_model(input_shape, n_categories)
     # parallel_model = multi_gpu_model(model, gpus=2)   #マルチGPUを使うときはこちら
-
+    
     model.compile(optimizer=Adam(lr=1e-3),
                 loss='categorical_crossentropy',
                 metrics=['accuracy'])
 
     #訓練(中断しても続きから継続できる)
-    hist=model.fit_generator(
+    history=model.fit_generator(
         train_generator,
         epochs=5,
         initial_epoch=cf.load_epoch_init(file_name),
         # use_multiprocessing=True,
-        verbose=1,
+        verbose=2,
         workers=8,
         validation_data=validation_generator,
         class_weight=class_weight,
@@ -122,12 +122,13 @@ if __name__ == "__main__":
             TensorBoard(file_name),
             cf.early_stopping(model, file_name),
             ])
-    
-    print(hist.history)
+    print("-----------")
+    print(history.history)
+    print("-----------")
     # 精度の履歴をプロット
-    print(str(hist))
-    plt.plot(hist.history['acc'],"o-",label="accuracy")
-    plt.plot(hist.history['val_acc'],"o-",label="val_acc")
+    print(str(history))
+    plt.plot(history.history['acc'],"o-",label="accuracy")
+    plt.plot(history.history['val_acc'],"o-",label="val_acc")
     plt.title('model accuracy')
     plt.xlabel('epoch')
     plt.ylabel('accuracy')
@@ -135,8 +136,8 @@ if __name__ == "__main__":
     plt.show()
 
     # 損失の履歴をプロット
-    plt.plot(hist.history['loss'],"o-",label="loss",)
-    plt.plot(hist.history['val_loss'],"o-",label="val_loss")
+    plt.plot(history.history['loss'],"o-",label="loss",)
+    plt.plot(history.history['val_loss'],"o-",label="val_loss")
     plt.title('model loss')
     plt.xlabel('epoch')
     plt.ylabel('loss')
