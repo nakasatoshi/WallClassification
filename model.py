@@ -19,6 +19,10 @@ import continue_fit as cf
 from keras.utils import multi_gpu_model
 from keras import regularizers
 from keras.utils import plot_model
+from keras.applications.xception import Xception
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 def vgg_based_model(input_shape, n_categories, fulltraining = False):
     """
@@ -27,6 +31,10 @@ def vgg_based_model(input_shape, n_categories, fulltraining = False):
     """
     base_model=VGG16(weights='imagenet',include_top=False,
                     input_tensor=Input(shape=input_shape))
+
+    #x_model=Xception(weights='imagenet',include_top=False,
+    #               input_tensor=Input(shape=input_shape))
+
 
     #add new layers instead of FC networks
     x=base_model.output
@@ -102,7 +110,7 @@ if __name__ == "__main__":
     )
 
     model = vgg_based_model(input_shape, n_categories)
-    # parallel_model = multi_gpu_model(model, gpus=2)   #マルチGPUを使うときはこちら
+    #parallel_model = multi_gpu_model(model, gpus=2)   #マルチGPUを使うときはこちら
     
     model.compile(optimizer=Adam(lr=1e-3),
                 loss='categorical_crossentropy',
