@@ -110,7 +110,7 @@ if __name__ == "__main__":
     #訓練(中断しても続きから継続できる)
     hist=model.fit_generator(
         train_generator,
-        epochs=30,
+        epochs=5,
         initial_epoch=cf.load_epoch_init(file_name),
         # use_multiprocessing=True,
         verbose=1,
@@ -122,3 +122,24 @@ if __name__ == "__main__":
             TensorBoard(file_name),
             cf.early_stopping(model, file_name),
             ])
+    
+    print(hist.history)
+    # 精度の履歴をプロット
+    print(str(hist))
+    plt.plot(hist.history['acc'],"o-",label="accuracy")
+    plt.plot(hist.history['val_acc'],"o-",label="val_acc")
+    plt.title('model accuracy')
+    plt.xlabel('epoch')
+    plt.ylabel('accuracy')
+    plt.legend(loc="lower right")
+    plt.show()
+
+    # 損失の履歴をプロット
+    plt.plot(hist.history['loss'],"o-",label="loss",)
+    plt.plot(hist.history['val_loss'],"o-",label="val_loss")
+    plt.title('model loss')
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.legend(loc='lower right')
+    plt.show()
+
